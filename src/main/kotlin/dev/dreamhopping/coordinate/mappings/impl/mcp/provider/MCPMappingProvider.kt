@@ -7,7 +7,6 @@ import dev.dreamhopping.coordinate.mappings.impl.mcp.MCPMapping
 import dev.dreamhopping.coordinate.mappings.impl.mcp.MCPMappingChannel
 import dev.dreamhopping.coordinate.mappings.impl.mcp.MCPVersionManifest
 import dev.dreamhopping.coordinate.mappings.impl.mcp.srg.SRGParser
-import dev.dreamhopping.coordinate.minecraft.MinecraftVersion
 import dev.dreamhopping.coordinate.util.ZipFileUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,7 +25,7 @@ class MCPMappingProvider : MappingProvider("mcp", "MCP") {
         "http://export.mcpbot.bspk.rs/mcp_CHANNEL/MAPPINGVERSION-MCVERSION/mcp_CHANNEL-MAPPINGVERSION-MCVERSION.zip"
     private val srgUrlTemplate = "http://export.mcpbot.bspk.rs/mcp/MCVERSION/mcp-MCVERSION-srg.zip"
 
-    override suspend fun fetchLatestMappings(version: MinecraftVersion): VersionMappings {
+    override suspend fun fetchLatestMappings(version: String): VersionMappings {
         val mcpMappings = fetchLatestStableMappings(version)
         val srgMappings = fetchLatestSrgMappings(version)
 
@@ -41,10 +40,21 @@ class MCPMappingProvider : MappingProvider("mcp", "MCP") {
             it
         }
 
+        val fields = srgMappings.fields.map {
+            // A "deobfuscated name" for srg is an "obfuscated name" for mcp
+            val betterDeobfName =
+                mcpMappings.fields.firstOrNull { mapping -> mapping.obfuscatedName == it.deobfuscatedName }?.deobfuscatedName
+                    ?: it.deobfuscatedName
+
+            it.obfuscatedName = it.deobfuscatedName
+            it.deobfuscatedName = betterDeobfName
+            it
+        }
+
         return VersionMappings(
             srgMappings.classes.associateBy { it.obfuscatedName },
             methods.associateBy { it.obfuscatedName },
-            srgMappings.fields.associateBy { it.obfuscatedName })
+            fields.associateBy { it.obfuscatedName })
     }
 
     override suspend fun prepareForUsage() {
@@ -57,12 +67,12 @@ class MCPMappingProvider : MappingProvider("mcp", "MCP") {
         }
     }
 
-    private suspend fun fetchLatestStableMappings(version: MinecraftVersion) =
+    private suspend fun fetchLatestStableMappings(version: String) =
         withContext(Dispatchers.IO) {
-            val manifestVersion = versionManifest[version.version]
-                ?: error("There are no mappings available for ${version.version}")
+            val manifestVersion = versionManifest[version]
+                ?: error("There are no mappings available for $version")
             val latestStable = manifestVersion.stable.firstOrNull()?.toString()
-                ?: error("There are no stable mappings available for ${version.version}")
+                ?: error("There are no stable mappings available for $version")
             val mappingsUrl = URL(getMCPMappingUrl(MCPMappingChannel.STABLE, version, latestStable))
             val mcpMappings = MCPMappings()
 
@@ -73,13 +83,13 @@ class MCPMappingProvider : MappingProvider("mcp", "MCP") {
                     mcpMappings.params = Csv.decodeFromString(it.readEntryText("params.csv"))
                 }
             } catch (t: Throwable) {
-                error("Failed to get mappings for ${version.version} (stable ${latestStable})\n${t.stackTraceToString()}")
+                error("Failed to get mappings for $version (stable ${latestStable})\n${t.stackTraceToString()}")
             }
 
             mcpMappings
         }
 
-    private suspend fun fetchLatestSrgMappings(version: MinecraftVersion) =
+    private suspend fun fetchLatestSrgMappings(version: String) =
         withContext(Dispatchers.IO) {
             val srgUrl = URL(getSrgMappingUrl(version))
             var srgInformation: SRGParser.SRGInformation
@@ -93,14 +103,14 @@ class MCPMappingProvider : MappingProvider("mcp", "MCP") {
 
     private fun getMCPMappingUrl(
         channel: MCPMappingChannel,
-        minecraftVersion: MinecraftVersion,
+        minecraftVersion: String,
         mappingVersion: String
     ) = mappingUrlTemplate
         .replace("CHANNEL", channel.value)
         .replace("MAPPINGVERSION", mappingVersion)
-        .replace("MCVERSION", minecraftVersion.version)
+        .replace("MCVERSION", minecraftVersion)
 
-    private fun getSrgMappingUrl(version: MinecraftVersion) = srgUrlTemplate.replace("MCVERSION", version.version)
+    private fun getSrgMappingUrl(minecraftVersion: String) = srgUrlTemplate.replace("MCVERSION", minecraftVersion)
 
     data class MCPMappings(
         var methods: List<MCPMapping> = listOf(),

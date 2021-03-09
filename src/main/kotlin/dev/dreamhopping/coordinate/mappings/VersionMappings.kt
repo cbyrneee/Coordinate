@@ -21,8 +21,8 @@ data class VersionMappings(
 
     data class MappedField(
         val obfuscatedOwner: String,
-        val obfuscatedName: String,
+        var obfuscatedName: String,
         val deobfuscatedOwner: String,
-        val deobfuscatedName: String
+        var deobfuscatedName: String
     )
 }

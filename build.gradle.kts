@@ -15,6 +15,11 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
     implementation("de.brudaswen.kotlinx.serialization:kotlinx-serialization-csv:1.1.0")
-
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
+
+    implementation("com.formdev:flatlaf:1.0")
+}
+
+tasks.compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
 }
