@@ -1,56 +1,80 @@
 package dev.dreamhopping.coordinate.actions
 
+import com.intellij.codeInsight.hint.HintManager
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.ide.CopyPasteManager
+import com.intellij.psi.*
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.TypeConversionUtil
 import dev.dreamhopping.coordinate.mappings.impl.mcp.provider.MCPMappingProvider
 import kotlinx.coroutines.runBlocking
-import java.awt.BorderLayout
-import java.awt.Dimension
-import javax.swing.JComponent
-import javax.swing.JLabel
-import javax.swing.JPanel
+import java.awt.datatransfer.StringSelection
 
 
 class GetMappedNameAction : AnAction() {
+    companion object {
+        val mappings = runBlocking {
+            val mcpMappingProvider = MCPMappingProvider()
+            mcpMappingProvider.prepareForUsage()
+
+            return@runBlocking mcpMappingProvider.fetchLatestMappings("1.8.9")
+        }
+    }
+
     override fun actionPerformed(e: AnActionEvent) {
-        val editor: Editor = e.getRequiredData(CommonDataKeys.EDITOR)
-        val selectedText = editor.caretModel.currentCaret.selectedText ?: return
-
-        SampleDialogWrapper(selectedText).showAndGet()
-    }
-
-    override fun update(e: AnActionEvent) {
         val editor = e.getRequiredData(CommonDataKeys.EDITOR)
-        e.presentation.isEnabledAndVisible = editor.caretModel.currentCaret.selectedText?.isNotEmpty() ?: false
+        val project = e.getRequiredData(CommonDataKeys.PROJECT)
+        val caret = editor.caretModel.offset
+
+        val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.document) as? PsiJavaFile ?: return
+        val method = PsiTreeUtil.getParentOfType(psiFile.findElementAt(caret), PsiMethod::class.java) ?: return
+        val owner = method.containingClass?.qualifiedName?.replace(".", "/") ?: return
+
+        var descriptor = "("
+        method.parameterList.parameters.forEach {
+            descriptor += it.type.descriptor
+        }
+        descriptor += ")${(method.returnType ?: PsiType.VOID).descriptor}"
+
+        val obfName =
+            mappings.methods.values.firstOrNull {
+                it.deobfuscatedName == method.name && it.deobfuscatedOwner == owner && it.deobfuscatedDescriptor == descriptor
+            }?.obfuscatedName
+
+        if (obfName != null) {
+            CopyPasteManager.getInstance().setContents(StringSelection(obfName))
+            HintManager.getInstance()
+                .showInformationHint(editor, "Obfuscated name is $obfName (copied to clipboard)")
+        } else {
+            HintManager.getInstance().showErrorHint(editor, "Couldn't find obfuscated name for ${method.name}")
+        }
     }
 
-    internal class SampleDialogWrapper(val name: String) : DialogWrapper(true) {
-        override fun createCenterPanel(): JComponent {
-            val mappings = runBlocking {
-                val mcpMappingProvider = MCPMappingProvider()
-                mcpMappingProvider.prepareForUsage()
-
-                return@runBlocking mcpMappingProvider.fetchLatestMappings("1.8.9")
+    private val PsiType.descriptor: String?
+        get() = when (this) {
+            is PsiArrayType -> "[${this.componentType.descriptor}"
+            is PsiPrimitiveType -> this.descriptorName.toString()
+            is PsiClassType -> {
+                val clazz = (TypeConversionUtil.erasure(this) as PsiClassType).resolve()
+                if (clazz != null) "L${clazz.qualifiedName?.replace(".", "/")};" else null
             }
-
-            val found = mappings.classes.values.firstOrNull { it.deobfuscatedName == name }?.obfuscatedName
-                ?: mappings.fields.values.firstOrNull { it.deobfuscatedName == name }?.obfuscatedName
-                ?: mappings.methods.values.firstOrNull { it.deobfuscatedName == name }?.obfuscatedName
-
-            val dialogPanel = JPanel(BorderLayout())
-            val label = JLabel("$name -> ${found ?: "Couldn't find method, class or field"}")
-            label.preferredSize = Dimension(100, 100)
-
-            dialogPanel.add(label, BorderLayout.CENTER)
-            return dialogPanel
+            else -> null
         }
 
-        init {
-            init()
-            title = "Test DialogWrapper"
-        }
-    }
+    private val PsiPrimitiveType.descriptorName: Char?
+        get() =
+            when (this) {
+                PsiType.LONG -> 'J'
+                PsiType.SHORT -> 'S'
+                PsiType.BOOLEAN -> 'Z'
+                PsiType.VOID -> 'V'
+                PsiType.BYTE -> 'B'
+                PsiType.CHAR -> 'C'
+                PsiType.DOUBLE -> 'D'
+                PsiType.FLOAT -> 'F'
+                PsiType.INT -> 'I'
+                else -> null
+            }
 }
