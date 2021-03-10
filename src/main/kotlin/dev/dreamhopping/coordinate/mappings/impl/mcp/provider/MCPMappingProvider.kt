@@ -1,6 +1,5 @@
 package dev.dreamhopping.coordinate.mappings.impl.mcp.provider
 
-import dev.dreamhopping.coordinate.Coordinate
 import dev.dreamhopping.coordinate.mappings.MappingProvider
 import dev.dreamhopping.coordinate.mappings.VersionMappings
 import dev.dreamhopping.coordinate.mappings.impl.mcp.MCPMapping
@@ -13,6 +12,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.csv.Csv
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import java.net.URL
 
 @ExperimentalSerializationApi
@@ -60,7 +60,7 @@ class MCPMappingProvider : MappingProvider("mcp", "MCP") {
     override suspend fun prepareForUsage() {
         withContext(Dispatchers.IO) {
             try {
-                versionManifest = Coordinate.json.decodeFromString(versionManifestUrl.readText())
+                versionManifest = Json.decodeFromString(versionManifestUrl.readText())
             } catch (t: Throwable) {
                 throw Exception("Failed to get MCP Versions!", t)
             }

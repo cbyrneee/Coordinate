@@ -1,11 +1,11 @@
 package dev.dreamhopping.coordinate.minecraft.provider
 
-import dev.dreamhopping.coordinate.Coordinate
 import dev.dreamhopping.coordinate.minecraft.MinecraftVersion
 import dev.dreamhopping.coordinate.minecraft.MinecraftVersionManifest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import java.net.URL
 
 /**
@@ -18,7 +18,7 @@ class MinecraftVersionProvider {
     suspend fun fetchManifest() {
         withContext(Dispatchers.IO) {
             try {
-                versionManifest = Coordinate.json.decodeFromString(versionManifestUrl.readText())
+                versionManifest = Json.decodeFromString(versionManifestUrl.readText())
             } catch (t: Throwable) {
                 throw Exception("Failed to get version manifest!", t)
             }

@@ -5,12 +5,10 @@ import dev.dreamhopping.coordinate.mappings.VersionMappings
 import dev.dreamhopping.coordinate.mappings.impl.mcp.provider.MCPMappingProvider
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.GridBagLayout
 import javax.swing.*
-
 
 /**
  * Coordinate is a Minecraft Mapping Viewer with support for MCP, Yarn and Mojang mappings
@@ -18,11 +16,6 @@ import javax.swing.*
  */
 @ExperimentalSerializationApi
 object Coordinate {
-    val json = Json {
-        isLenient = true
-        ignoreUnknownKeys = true
-    }
-
     @JvmStatic
     fun main(args: Array<String>) {
         FlatDarkLaf.install()
@@ -40,43 +33,6 @@ object Coordinate {
             frame.invalidate()
             frame.revalidate()
         }
-
-        /*println("Hello World")
-
-        runBlocking {
-            val minecraftVersionProvider = MinecraftVersionProvider()
-            minecraftVersionProvider.fetchManifest()
-
-            val mcpMappingProvider = MCPMappingProvider()
-            val mc189 = minecraftVersionProvider.getVersion("1.8.9")
-                ?: throw Exception("Couldn't get version 1.8.9 from manifest!")
-
-            mcpMappingProvider.prepareForUsage()
-            val mappings = mcpMappingProvider.fetchLatestMappings(mc189)
-
-            val timeToFindMethods = measureTimeMillis {
-                mappings.methods.keys.forEach {
-                    mappings.methods[it]
-                }
-            }
-
-            val timeToFindClasses = measureTimeMillis {
-                mappings.classes.keys.forEach {
-                    mappings.classes[it]
-                }
-            }
-
-            val timeToFindFields = measureTimeMillis {
-                mappings.fields.keys.forEach {
-                    mappings.fields[it]
-                }
-            }
-
-
-            println("Took ${timeToFindMethods}ms to find ${mappings.methods.keys.size} methods (mapped)")
-            println("Took ${timeToFindClasses}ms to find ${mappings.classes.keys.size} classes (mapped)")
-            println("Took ${timeToFindFields}ms to find ${mappings.fields.keys.size} fields (mapped)")
-        }*/
     }
 }
 
