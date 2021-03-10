@@ -1,0 +1,25 @@
+<idea-plugin>
+    <id>dev.dreamhopping.coordinate.intellij-plugin</id>
+    <name>Coordinate</name>
+    <vendor url="https://dreamhopping.github.io">dreamhopping</vendor>
+
+    <description><![CDATA[
+    A plugin for IntelliJ to assist with the viewing of Minecraft Mappings<br>
+    <em>Support for MCP mappings (srg names) is currently supported with Mojang and Yarn mapping support planned</em>
+    ]]></description>
+
+    <depends>com.intellij.modules.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+        <action id="getMappedName" class="dev.dreamhopping.coordinate.actions.GetMappedNameAction"
+                text="Get Mapped Name"
+                description="Gets the Mapped Name of a method">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </action>
+    </actions>
+</idea-plugin>
