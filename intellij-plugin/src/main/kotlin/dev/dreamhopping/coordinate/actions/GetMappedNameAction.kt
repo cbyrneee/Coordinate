@@ -11,10 +11,13 @@ import com.intellij.psi.util.PsiTreeUtil
 import dev.dreamhopping.coordinate.MappingsHelper
 import dev.dreamhopping.coordinate.psi.obfuscatedName
 import java.awt.datatransfer.StringSelection
+import java.util.concurrent.CompletableFuture.runAsync
 
 class GetMappedNameAction : AnAction() {
     init {
-        MappingsHelper.mappings
+        runAsync {
+            MappingsHelper.mappings
+        }
     }
 
     override fun actionPerformed(event: AnActionEvent) {
@@ -35,6 +38,10 @@ class GetMappedNameAction : AnAction() {
         } catch (t: Throwable) {
             t.message?.let { HintManager.getInstance().showErrorHint(editor, it) }
         }
+    }
+
+    override fun update(e: AnActionEvent) {
+        this.isEnabledInModalContext = MappingsHelper.areMappingsLoaded
     }
 
     private inline fun <reified T : PsiElement> CaretModel.getMember(psiFile: PsiFile) =

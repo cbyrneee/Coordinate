@@ -3,6 +3,7 @@ package dev.dreamhopping.coordinate.psi
 import com.intellij.psi.*
 import com.intellij.psi.util.TypeConversionUtil
 import dev.dreamhopping.coordinate.MappingsHelper
+import dev.dreamhopping.coordinate.MappingsHelper.findObfuscatedName
 
 val PsiMember.obfuscatedName
     get() = when (this) {
@@ -10,18 +11,10 @@ val PsiMember.obfuscatedName
             MappingsHelper.mappings.classes.firstOrNull {
                 it.deobfuscatedName == owner
             }?.obfuscatedName
-        is PsiMethod -> {
-            val mappedMethod =
-                MappingsHelper.mappings.methods.firstOrNull {
-                    it.deobfuscatedName == name && it.deobfuscatedOwner == owner && it.deobfuscatedDescriptor == descriptor
-                } ?: containingClass?.findAllSupers()?.toList()?.mapFirstNotNull { element ->
-                    MappingsHelper.mappings.methods.firstOrNull {
-                        it.deobfuscatedName == name && it.deobfuscatedOwner == element.owner && it.deobfuscatedDescriptor == descriptor
-                    }
-                }
-
-            mappedMethod?.obfuscatedName
-        }
+        is PsiMethod ->
+            (this.findObfuscatedName() ?: containingClass?.findAllSupers()?.mapFirstNotNull {
+                this.findObfuscatedName(otherOwner = it.owner)
+            })?.obfuscatedName
         is PsiField ->
             MappingsHelper.mappings.fields.firstOrNull {
                 it.deobfuscatedName == name && it.deobfuscatedOwner == owner
