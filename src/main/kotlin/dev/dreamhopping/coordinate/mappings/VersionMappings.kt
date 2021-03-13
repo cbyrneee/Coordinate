@@ -15,7 +15,7 @@ data class VersionMappings(
         var deobfuscatedName: String,
         val obfuscatedOwner: String,
         val deobfuscatedOwner: String,
-        val obfuscatedDescriptor: String,
+        val obfuscatedDescriptor: String? = null,
         val deobfuscatedDescriptor: String
     )
 

@@ -1,4 +1,4 @@
-package dev.dreamhopping.coordinate.minecraft
+package dev.dreamhopping.coordinate.mappings.impl.mojang.version
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
