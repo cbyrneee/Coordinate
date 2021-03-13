@@ -76,11 +76,11 @@ class CoordinateFrame : JFrame() {
             textInput.addActionListener {
                 val mappings = (SwingUtilities.getWindowAncestor(this) as CoordinateFrame).versionMappings
 
-                result.text =
+               /* result.text =
                     mappings.classes[textInput.text]?.toString() ?: mappings.methods[textInput.text]?.toString()
                             ?: mappings.fields[textInput.text]?.toString() ?: "Couldn't find a method, class or field"
 
-                result.isVisible = true
+                result.isVisible = true*/
             }
 
 

@@ -52,9 +52,9 @@ class MCPMappingProvider : MappingProvider("mcp", "MCP") {
         }
 
         return VersionMappings(
-            srgMappings.classes.associateBy { it.obfuscatedName },
-            methods.associateBy { it.obfuscatedName },
-            fields.associateBy { it.obfuscatedName })
+            srgMappings.classes,
+            methods,
+            fields)
     }
 
     override suspend fun prepareForUsage() {

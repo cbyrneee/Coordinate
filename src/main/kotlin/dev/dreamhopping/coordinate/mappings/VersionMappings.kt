@@ -4,9 +4,9 @@ package dev.dreamhopping.coordinate.mappings
  * Includes all mappings for a certain version
  */
 data class VersionMappings(
-    val classes: Map<String, MappedClass>,
-    val methods: Map<String, MappedMethod>,
-    val fields: Map<String, MappedField>
+    val classes: List<MappedClass>,
+    val methods: List<MappedMethod>,
+    val fields: List<MappedField>
 ) {
     data class MappedClass(val obfuscatedName: String, val deobfuscatedName: String)
 

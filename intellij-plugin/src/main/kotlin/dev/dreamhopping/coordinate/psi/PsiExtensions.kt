@@ -7,15 +7,23 @@ import dev.dreamhopping.coordinate.MappingsHelper
 val PsiMember.obfuscatedName
     get() = when (this) {
         is PsiClass ->
-            MappingsHelper.mappings.classes.values.firstOrNull {
+            MappingsHelper.mappings.classes.firstOrNull {
                 it.deobfuscatedName == owner
             }?.obfuscatedName
-        is PsiMethod ->
-            MappingsHelper.mappings.methods.values.firstOrNull {
-                it.deobfuscatedName == name && it.deobfuscatedOwner == owner && it.deobfuscatedDescriptor == descriptor
-            }?.obfuscatedName
+        is PsiMethod -> {
+            val mappedMethod =
+                MappingsHelper.mappings.methods.firstOrNull {
+                    it.deobfuscatedName == name && it.deobfuscatedOwner == owner && it.deobfuscatedDescriptor == descriptor
+                } ?: containingClass?.findAllSupers()?.toList()?.mapFirstNotNull { element ->
+                    MappingsHelper.mappings.methods.firstOrNull {
+                        it.deobfuscatedName == name && it.deobfuscatedOwner == element.owner && it.deobfuscatedDescriptor == descriptor
+                    }
+                }
+
+            mappedMethod?.obfuscatedName
+        }
         is PsiField ->
-            MappingsHelper.mappings.fields.values.firstOrNull {
+            MappingsHelper.mappings.fields.firstOrNull {
                 it.deobfuscatedName == name && it.deobfuscatedOwner == owner
             }?.obfuscatedName
         else -> null
@@ -60,3 +68,22 @@ val PsiPrimitiveType.descriptorType: Char?
             PsiType.INT -> 'I'
             else -> null
         }
+
+inline fun <T, R> Collection<T>.mapFirstNotNull(transform: (T) -> R): R? {
+    var item: R? = null
+    for (entry in this) {
+        item = transform(entry)
+        if (item != null) break
+    }
+
+    return item
+}
+
+fun PsiClass.findAllSupers(): MutableList<PsiClass> {
+    val list = this.supers.toMutableList()
+    list.addAll(this.implementsListTypes.map { (TypeConversionUtil.erasure(it) as PsiClassType).resolve() })
+
+    val supers = list.toTypedArray()
+    return arrayOf(*supers, *supers.flatMap { it.findAllSupers().asIterable() }.toTypedArray()).distinct()
+        .toMutableList()
+}
