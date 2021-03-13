@@ -4,22 +4,17 @@ import com.intellij.codeInsight.hint.HintManager
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.editor.CaretModel
 import com.intellij.openapi.ide.CopyPasteManager
-import com.intellij.psi.*
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiJavaFile
+import com.intellij.psi.PsiJvmMember
+import com.intellij.psi.PsiMember
 import dev.dreamhopping.coordinate.MappingsHelper
+import dev.dreamhopping.coordinate.psi.getMember
 import dev.dreamhopping.coordinate.psi.obfuscatedName
 import java.awt.datatransfer.StringSelection
-import java.util.concurrent.CompletableFuture.runAsync
 
 class GetMappedNameAction : AnAction() {
-    init {
-        runAsync {
-            MappingsHelper.mappings
-        }
-    }
-
     override fun actionPerformed(event: AnActionEvent) {
         val editor = event.getRequiredData(CommonDataKeys.EDITOR)
         val project = event.getRequiredData(CommonDataKeys.PROJECT)
@@ -41,9 +36,10 @@ class GetMappedNameAction : AnAction() {
     }
 
     override fun update(e: AnActionEvent) {
-        this.isEnabledInModalContext = MappingsHelper.areMappingsLoaded
+        this.isEnabledInModalContext = MappingsHelper.mappings != null
     }
 
-    private inline fun <reified T : PsiElement> CaretModel.getMember(psiFile: PsiFile) =
-        PsiTreeUtil.getParentOfType(psiFile.findElementAt(this.offset), T::class.java)
+    init {
+        MappingsHelper.loadMappings()
+    }
 }

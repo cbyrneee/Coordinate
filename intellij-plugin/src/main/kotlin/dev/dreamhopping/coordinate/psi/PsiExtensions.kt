@@ -1,6 +1,8 @@
 package dev.dreamhopping.coordinate.psi
 
+import com.intellij.openapi.editor.CaretModel
 import com.intellij.psi.*
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.TypeConversionUtil
 import dev.dreamhopping.coordinate.MappingsHelper
 import dev.dreamhopping.coordinate.MappingsHelper.findObfuscatedName
@@ -8,7 +10,7 @@ import dev.dreamhopping.coordinate.MappingsHelper.findObfuscatedName
 val PsiMember.obfuscatedName
     get() = when (this) {
         is PsiClass ->
-            MappingsHelper.mappings.classes.firstOrNull {
+            MappingsHelper.mappings?.classes?.firstOrNull {
                 it.deobfuscatedName == owner
             }?.obfuscatedName
         is PsiMethod ->
@@ -16,7 +18,7 @@ val PsiMember.obfuscatedName
                 this.findObfuscatedName(otherOwner = it.owner)
             })?.obfuscatedName
         is PsiField ->
-            MappingsHelper.mappings.fields.firstOrNull {
+            MappingsHelper.mappings?.fields?.firstOrNull {
                 it.deobfuscatedName == name && it.deobfuscatedOwner == owner
             }?.obfuscatedName
         else -> null
@@ -71,6 +73,9 @@ inline fun <T, R> Collection<T>.mapFirstNotNull(transform: (T) -> R): R? {
 
     return item
 }
+
+inline fun <reified T : PsiElement> CaretModel.getMember(psiFile: PsiFile) =
+    PsiTreeUtil.getParentOfType(psiFile.findElementAt(this.offset), T::class.java)
 
 fun PsiClass.findAllSupers(): MutableList<PsiClass> {
     val list = this.supers.toMutableList()

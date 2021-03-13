@@ -5,20 +5,19 @@ import dev.dreamhopping.coordinate.mappings.VersionMappings
 import dev.dreamhopping.coordinate.mappings.impl.mcp.provider.MCPMappingProvider
 import dev.dreamhopping.coordinate.psi.descriptor
 import dev.dreamhopping.coordinate.psi.owner
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 object MappingsHelper {
-    var areMappingsLoaded = false
+    var mappings: VersionMappings? = null
 
-    val mappings: VersionMappings by lazy {
-        runBlocking {
-            val mcpMappingProvider = MCPMappingProvider()
-            mcpMappingProvider.prepareForUsage()
-
-            val mappings = mcpMappingProvider.fetchLatestMappings("1.8.9")
-            areMappingsLoaded = true
-
-            mappings
+    fun loadMappings() {
+        GlobalScope.launch(Dispatchers.IO) {
+            with(MCPMappingProvider()) {
+                prepareForUsage()
+                mappings = fetchLatestMappings("1.8.9")
+            }
         }
     }
 
@@ -27,7 +26,7 @@ object MappingsHelper {
         otherName: String? = null,
         otherDesc: String? = null
     ): VersionMappings.MappedMethod? {
-        return mappings.methods.firstOrNull {
+        return mappings?.methods?.firstOrNull {
             it.deobfuscatedName == (otherName ?: name) && it.deobfuscatedOwner == (otherOwner
                 ?: owner) && it.deobfuscatedDescriptor == (otherDesc ?: descriptor)
         }
