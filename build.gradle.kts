@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "1.4.31"
     kotlin("plugin.serialization") version "1.4.31"
+    `maven-publish`
 }
 
 group = "dev.dreamhopping.coordinate"
@@ -21,3 +22,14 @@ dependencies {
 tasks.compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+        }
+    }
+}
+
+// Disable test tasks
+tasks.withType<Test> { enabled = false }
