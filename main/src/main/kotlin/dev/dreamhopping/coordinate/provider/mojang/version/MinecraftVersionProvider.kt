@@ -1,7 +1,5 @@
-package dev.dreamhopping.coordinate.mappings.impl.mojang.version.provider
+package dev.dreamhopping.coordinate.provider.mojang.version
 
-import dev.dreamhopping.coordinate.mappings.impl.mojang.version.MinecraftVersion
-import dev.dreamhopping.coordinate.mappings.impl.mojang.version.MinecraftVersionManifest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString

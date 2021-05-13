@@ -1,6 +1,7 @@
-package dev.dreamhopping.coordinate.mappings.impl.mojang.version
+package dev.dreamhopping.coordinate.provider.mojang.version
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -36,4 +37,31 @@ enum class MinecraftVersionType(val value: String) {
             return encoder.encodeString(value.value)
         }
     }
+}
+
+@Serializable
+data class MinecraftVersionManifest(val latest: Latest, val versions: List<MinecraftVersion>) {
+    @Serializable
+    data class Latest(val release: String, val snapshot: String)
+}
+
+@Serializable
+data class MinecraftVersion(
+    @SerialName("id")
+    val version: String,
+    @SerialName("url")
+    val versionUrl: String,
+    val type: MinecraftVersionType,
+)
+
+@Serializable
+data class MinecraftVersionInfo(val downloads: Downloads? = null) {
+    @Serializable
+    data class Downloads(
+        @SerialName("client_mappings")
+        val clientMappings: Download? = null
+    )
+
+    @Serializable
+    data class Download(val url: String? = null)
 }

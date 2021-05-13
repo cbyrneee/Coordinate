@@ -1,8 +1,7 @@
 package dev.dreamhopping.coordinate
 
 import com.formdev.flatlaf.FlatDarkLaf
-import dev.dreamhopping.coordinate.mappings.VersionMappings
-import dev.dreamhopping.coordinate.mappings.impl.mcp.provider.MCPMappingProvider
+import dev.dreamhopping.coordinate.provider.mcp.MCPMappingProvider
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.awt.Component
@@ -37,7 +36,7 @@ object Coordinate {
 }
 
 class CoordinateFrame : JFrame() {
-    lateinit var versionMappings: VersionMappings
+    lateinit var versionMappings: Mappings
 
     init {
         setDefaultLookAndFeelDecorated(true)

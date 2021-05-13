@@ -1,9 +1,9 @@
-package dev.dreamhopping.coordinate.mappings.impl.yarn.version
+package dev.dreamhopping.coordinate.provider.yarn.version
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class YarnMappingVersionInfo(
+data class YarnVersionInfo(
     val gameVersion: String? = null,
     val separator: String? = null,
     val build: Int? = null,

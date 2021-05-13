@@ -1,8 +1,7 @@
 package dev.dreamhopping.coordinate
 
 import com.intellij.psi.PsiMethod
-import dev.dreamhopping.coordinate.mappings.VersionMappings
-import dev.dreamhopping.coordinate.mappings.impl.mcp.provider.MCPMappingProvider
+import dev.dreamhopping.coordinate.provider.mcp.MCPMappingProvider
 import dev.dreamhopping.coordinate.psi.descriptor
 import dev.dreamhopping.coordinate.psi.owner
 import kotlinx.coroutines.Dispatchers
@@ -10,7 +9,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 object MappingsHelper {
-    var mappings: VersionMappings? = null
+    var mappings: Mappings? = null
 
     fun loadMappings() {
         GlobalScope.launch(Dispatchers.IO) {
@@ -25,7 +24,7 @@ object MappingsHelper {
         otherOwner: String? = null,
         otherName: String? = null,
         otherDesc: String? = null
-    ): VersionMappings.MappedMethod? {
+    ): Mappings.MappedMethod? {
         return mappings?.methods?.firstOrNull {
             it.deobfuscatedName == (otherName ?: name) && it.deobfuscatedOwner == (otherOwner
                 ?: owner) && it.deobfuscatedDescriptor == (otherDesc ?: descriptor)

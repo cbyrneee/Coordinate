@@ -1,11 +1,11 @@
-package dev.dreamhopping.coordinate.mappings.impl.mcp.provider
+package dev.dreamhopping.coordinate.provider.mcp
 
-import dev.dreamhopping.coordinate.mappings.MappingProvider
-import dev.dreamhopping.coordinate.mappings.VersionMappings
-import dev.dreamhopping.coordinate.mappings.impl.mcp.MCPMapping
-import dev.dreamhopping.coordinate.mappings.impl.mcp.MCPMappingChannel
-import dev.dreamhopping.coordinate.mappings.impl.mcp.MCPVersionManifest
-import dev.dreamhopping.coordinate.mappings.impl.mcp.srg.SRGParser
+import dev.dreamhopping.coordinate.Mappings
+import dev.dreamhopping.coordinate.provider.MappingProvider
+import dev.dreamhopping.coordinate.provider.mcp.parser.SRGParser
+import dev.dreamhopping.coordinate.provider.mcp.version.MCPMapping
+import dev.dreamhopping.coordinate.provider.mcp.version.MCPMappingChannel
+import dev.dreamhopping.coordinate.provider.mcp.version.MCPVersionManifest
 import dev.dreamhopping.coordinate.util.ZipFileUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -25,7 +25,7 @@ class MCPMappingProvider : MappingProvider("mcp", "MCP") {
         "http://export.mcpbot.bspk.rs/mcp_CHANNEL/MAPPINGVERSION-MCVERSION/mcp_CHANNEL-MAPPINGVERSION-MCVERSION.zip"
     private val srgUrlTemplate = "http://export.mcpbot.bspk.rs/mcp/MCVERSION/mcp-MCVERSION-srg.zip"
 
-    override suspend fun fetchLatestMappings(version: String): VersionMappings {
+    override suspend fun fetchLatestMappings(version: String): Mappings {
         val mcpMappings = fetchLatestStableMappings(version)
         val srgMappings = fetchLatestSrgMappings(version)
 
@@ -51,10 +51,11 @@ class MCPMappingProvider : MappingProvider("mcp", "MCP") {
             it
         }
 
-        return VersionMappings(
+        return Mappings(
             srgMappings.classes,
             methods,
-            fields)
+            fields
+        )
     }
 
     override suspend fun prepareForUsage() {

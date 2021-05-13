@@ -1,6 +1,5 @@
-package dev.dreamhopping.coordinate.mappings.impl.yarn.version.provider
+package dev.dreamhopping.coordinate.provider.yarn.version
 
-import dev.dreamhopping.coordinate.mappings.impl.yarn.version.YarnMappingVersionInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
@@ -14,7 +13,7 @@ class YarnVersionProvider {
     private val mappingManifestUrl = URL("https://meta.fabricmc.net/v1/versions/mappings")
     private val mavenRepoUrl = "https://maven.fabricmc.net/"
 
-    private var versionManifest = listOf<YarnMappingVersionInfo>()
+    private var versionManifest = listOf<YarnVersionInfo>()
 
     suspend fun fetchManifest() {
         withContext(Dispatchers.IO) {

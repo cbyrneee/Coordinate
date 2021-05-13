@@ -1,6 +1,6 @@
-package dev.dreamhopping.coordinate.mappings.impl.mojang.proguard
+package dev.dreamhopping.coordinate.provider.mojang.parser
 
-import dev.dreamhopping.coordinate.mappings.VersionMappings
+import dev.dreamhopping.coordinate.Mappings
 
 class ProguardParser(private var proguardText: String) {
     private val validName = "[a-zA-Z0-9_\\-.$<>]+"
@@ -10,11 +10,11 @@ class ProguardParser(private var proguardText: String) {
     private val aField = " {4}($aType) ($validName) -> ($validName)".toPattern()
     private val aMethod = " {4}(?:[0-9]+:[0-9]+:)?($aType) ($validName)\\(($aTypeList)\\) -> ($validName)".toPattern()
 
-    fun parse(): VersionMappings {
-        val classes = mutableListOf<VersionMappings.MappedClass>()
-        val methods = mutableListOf<VersionMappings.MappedMethod>()
-        val fields = mutableListOf<VersionMappings.MappedField>()
-        var currentClass: VersionMappings.MappedClass? = null
+    fun parse(): Mappings {
+        val classes = mutableListOf<Mappings.MappedClass>()
+        val methods = mutableListOf<Mappings.MappedMethod>()
+        val fields = mutableListOf<Mappings.MappedField>()
+        var currentClass: Mappings.MappedClass? = null
 
         proguardText.lineSequence().forEach { line ->
             if (line.isEmpty() || line.startsWith("#")) return@forEach
@@ -28,7 +28,7 @@ class ProguardParser(private var proguardText: String) {
                     val deobfuscatedName = classMatcher.group(1).replace(".", "/")
                     val obfuscatedName = classMatcher.group(2)
 
-                    currentClass = VersionMappings.MappedClass(obfuscatedName, deobfuscatedName)
+                    currentClass = Mappings.MappedClass(obfuscatedName, deobfuscatedName)
                     classes.add(currentClass!!)
                 }
 
@@ -39,7 +39,7 @@ class ProguardParser(private var proguardText: String) {
                     val obfuscatedName = methodMatcher.group(4)
 
                     methods.add(
-                        VersionMappings.MappedMethod(
+                        Mappings.MappedMethod(
                             obfuscatedName,
                             deobfuscatedName,
                             currentClass?.obfuscatedName ?: "",
@@ -54,7 +54,7 @@ class ProguardParser(private var proguardText: String) {
                     val obfuscatedName = fieldMatcher.group(3)
 
                     fields.add(
-                        VersionMappings.MappedField(
+                        Mappings.MappedField(
                             currentClass?.obfuscatedName ?: "",
                             obfuscatedName,
                             currentClass?.deobfuscatedName ?: "",
@@ -65,7 +65,7 @@ class ProguardParser(private var proguardText: String) {
             }
         }
 
-        return VersionMappings(classes, methods, fields)
+        return Mappings(classes, methods, fields)
     }
 
     private fun getMethodDescriptor(params: List<String>, returnType: String) =

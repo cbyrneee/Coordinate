@@ -1,6 +1,6 @@
-package dev.dreamhopping.coordinate.mappings.impl.mcp.srg
+package dev.dreamhopping.coordinate.provider.mcp.parser
 
-import dev.dreamhopping.coordinate.mappings.VersionMappings
+import dev.dreamhopping.coordinate.Mappings
 
 class SRGParser(private val srgText: String) {
     fun parse(): SRGInformation {
@@ -15,7 +15,7 @@ class SRGParser(private val srgText: String) {
                 "CL" -> {
                     // This line is a class
                     // Format: obfName deobfName
-                    srgInformation.classes.add(VersionMappings.MappedClass(typeInformation[0], typeInformation[1]))
+                    srgInformation.classes.add(Mappings.MappedClass(typeInformation[0], typeInformation[1]))
                 }
                 "FD" -> {
                     // This line is a field
@@ -24,7 +24,7 @@ class SRGParser(private val srgText: String) {
                     val (obfOwner, obfName) = typeInformation[0].split("/")
                     val deobfOwner = typeInformation[1].substringBeforeLast("/")
                     val deobfName = typeInformation[1].substringAfterLast("/")
-                    srgInformation.fields.add(VersionMappings.MappedField(obfOwner, obfName, deobfOwner, deobfName))
+                    srgInformation.fields.add(Mappings.MappedField(obfOwner, obfName, deobfOwner, deobfName))
                 }
                 "MD" -> {
                     // This line is a method
@@ -34,7 +34,7 @@ class SRGParser(private val srgText: String) {
                     val deobfName = typeInformation[2].substringAfterLast("/")
 
                     srgInformation.methods.add(
-                        VersionMappings.MappedMethod(
+                        Mappings.MappedMethod(
                             obfName,
                             deobfName,
                             obfOwner,
@@ -51,8 +51,8 @@ class SRGParser(private val srgText: String) {
     }
 
     data class SRGInformation(
-        val classes: MutableList<VersionMappings.MappedClass> = mutableListOf(),
-        val methods: MutableList<VersionMappings.MappedMethod> = mutableListOf(),
-        val fields: MutableList<VersionMappings.MappedField> = mutableListOf()
+        val classes: MutableList<Mappings.MappedClass> = mutableListOf(),
+        val methods: MutableList<Mappings.MappedMethod> = mutableListOf(),
+        val fields: MutableList<Mappings.MappedField> = mutableListOf()
     )
 }
