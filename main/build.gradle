@@ -12,8 +12,8 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.31"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.5.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1"
     implementation "de.brudaswen.kotlinx.serialization:kotlinx-serialization-csv:1.1.0"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3"
 }
