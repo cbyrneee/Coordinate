@@ -24,7 +24,7 @@ class SRGParser(private val srgText: String) {
                     val (obfOwner, obfName) = typeInformation[0].split("/")
                     val deobfOwner = typeInformation[1].substringBeforeLast("/")
                     val deobfName = typeInformation[1].substringAfterLast("/")
-                    srgInformation.fields.add(Mappings.MappedField(obfOwner, obfName, deobfOwner, deobfName))
+                    srgInformation.fields.add(Mappings.MappedField(obfName, deobfName, obfOwner, deobfOwner))
                 }
                 "MD" -> {
                     // This line is a method
